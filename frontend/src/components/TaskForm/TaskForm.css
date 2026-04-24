@@ -1,0 +1,61 @@
+.task-form {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    max-width: fit-content;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.heading {
+    color: #4f46e5;
+    font-weight: bold;
+
+}
+h4 {
+    color: #4f46e5;
+    margin-top: 1rem;
+}
+
+.title input {
+    margin-top: 0.3rem;
+    height: 2rem;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.description textarea{
+    margin-top: 0.4rem;
+    height: 4rem;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.priority select{
+    margin-top: 0.4rem;
+    height: 2rem;
+    width: fit-content;
+    border-radius: 5px;
+}
+
+
+.dueDate input {
+    margin-top: 0.4rem;
+    height: 2rem;
+    width: fit-content;
+    border-radius: 5px;
+}
+
+.submit-btn{
+    margin-top: 1rem;
+    background-color:  #4f46e5;
+    border-radius: 5px;
+    padding: 10px;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 15px;
+}
+
