@@ -1,7 +1,7 @@
 import {use, useState} from 'react';
 import './TaskForm.css';
 
-function TaskForm(){
+function TaskForm({setTasks}){
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('medium');
@@ -11,19 +11,33 @@ function TaskForm(){
 
     async function handleSubmit(e) {
         e.preventDefault();
-        
+
         const response = await fetch('http://localhost:5000/tasks', {
-            method: 'Post', 
-            headers: {'Content-Type': 'application/json'}, 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                title, 
-                description, 
+                title,
+                description,
                 priority,
-                done: false, 
+                done: false,
                 dueDate: dueDate || null
             })
         });
+
         const data = await response.json();
+
+        // THIS is what updates UI instantly
+        setTasks(prev => [
+            ...prev,
+            {
+                id: data.id,
+                title,
+                description,
+                priority,
+                dueDate
+            }
+        ]);
+
         console.log('Backend said:', data);
 
         // Reset form
@@ -32,7 +46,6 @@ function TaskForm(){
         setPriority('medium');
         setDueDate('');
     }
-
     return (
         <>
         {/* type attribute from button going to trig the onSubmit property */}

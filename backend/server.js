@@ -13,7 +13,7 @@ app.use(express.json()); // Lets the server read/parse JSON data coming in from 
 
 // get method to run the backend on localhost.
 app.get('/', (req, res) => {
-    res.send('TaskMaster  is running!');
+    res.send('TaskMaster is running!');
 });
 
 // Databse Connection
@@ -35,17 +35,19 @@ db.connect((err) => {
 
 // post new row in database . 
 app.post('/tasks', (req, res) => {
-    const { title, description, priority, done, dueDate} = req.body;
+    const { title, description, priority, dueDate } = req.body;
+    // validation
+    if (!title) {
+        return res.status(404).json({ message: "Title is required" });
+    }
     const sql = 'INSERT INTO tasks (title, description, priority, done, dueDate) VALUES (?, ?, ?, ?, ?)';
-    const values = [title, description, priority, done, dueDate];
-
+    const values = [title, description, priority, false, dueDate];
     db.query(sql, values, (err, result) => {
         if (err) {
-            return res.status(500).json({error: err.message});
+            return res.status(500).json({ error: err.message });
         }
-        res.json({message: 'Task Added Successfully!', id: result.insertId});
+        res.json({ message: 'Task Added Successfully!', id: result.insertId });
     });
-
 });
 
 // GET all tasks from the database
@@ -87,7 +89,7 @@ app.put('/tasks/:id', (req, res) => {
         }
         // check that any row data being change 
         if (result.affectedRows === 0){
-            return res.status(400).json({message: 'TASK NOT FOUND'})
+            return res.status(404).json({message: 'Task not found' })
         }
         res.json({message: 'Task Updated successfully!'});
     });
@@ -115,6 +117,7 @@ app.delete('/tasks/:id', (req, res) => {
 
 
 // running localhost server. 
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
