@@ -1,15 +1,25 @@
-CREATE DATABASE IF NOT EXISTS taskmaster;
 USE taskmaster;
 
 DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS users;
+
+
+CREATE TABLE users(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE tasks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    priority VARCHAR(50) DEFAULT 'Medium',
-    done BOOLEAN DEFAULT FALSE,
-    dueDate DATE,
-    completed_at TIMESTAMP NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  priority VARCHAR(50) DEFAULT 'Medium',
+  done TINYINT(1) DEFAULT 0,
+  dueDate DATE,
+  completed_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  user_id INT,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

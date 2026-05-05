@@ -17,3 +17,7 @@ cd backend
 mysql -u root -p taskmaster < database/schema.sql
 
 
+
+## Packages Install 
+npm install bcrypt jsonwebtoken
+
