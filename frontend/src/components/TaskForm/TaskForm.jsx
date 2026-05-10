@@ -1,7 +1,7 @@
-import {use, useState} from 'react';
+import { useState } from 'react';
 import './TaskForm.css';
 
-function TaskForm({setTasks}){
+function TaskForm({ setTasks, disabled = false }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('medium');
@@ -9,25 +9,48 @@ function TaskForm({setTasks}){
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState(null);
 
-    async function handleSubmit(e) {
-        e.preventDefault();
+    function sortTasks(tasks) {
+        const priorityOrder = {
+            high: 1,
+            medium: 2,
+            low: 3
+        };
 
-        const response = await fetch('http://localhost:5000/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                title,
-                description,
-                priority,
-                done: false,
-                dueDate: dueDate || null
-            })
+        return [...tasks].sort((a, b) => {
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
         });
+    }
 
-        const data = await response.json();
+    async function handleSubmit(e) {
+    e.preventDefault();
 
-        // THIS is what updates UI instantly
-        setTasks(prev => [
+    // Stop guest users
+    if (disabled) {
+        alert("Please login to use TaskMaster");
+        return;
+    }
+
+    setIsSaving(true);
+    const token = localStorage.getItem('token');
+    const response = await fetch('http://localhost:5000/tasks', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json', 
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            title,
+            description,
+            priority,
+            done: false,
+            dueDate: dueDate || null
+        })
+    });
+
+    const data = await response.json();
+
+    setTasks(prev =>
+        sortTasks([
             ...prev,
             {
                 id: data.id,
@@ -36,16 +59,18 @@ function TaskForm({setTasks}){
                 priority,
                 dueDate
             }
-        ]);
+        ])
+    );
 
-        console.log('Backend said:', data);
+    console.log('Backend said:', data);
 
-        // Reset form
-        setTitle('');
-        setDescription('');
-        setPriority('medium');
-        setDueDate('');
-    }
+    // Reset form
+    setTitle('');
+    setDescription('');
+    setPriority('medium');
+    setDueDate('');
+    setIsSaving(false);
+}
     return (
         <>
         {/* type attribute from button going to trig the onSubmit property */}
@@ -59,6 +84,7 @@ function TaskForm({setTasks}){
                         placeholder='Enter task title'
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
+                        disabled={disabled}
                     />
                 </div>
 
@@ -70,6 +96,7 @@ function TaskForm({setTasks}){
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={4}
+                        disabled={disabled}
                     />
                 </div>
 
@@ -79,6 +106,7 @@ function TaskForm({setTasks}){
                         className='priority-option'
                         value={priority}
                         onChange={(e) => setPriority(e.target.value)}
+                        disabled={disabled}
                     >
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
@@ -93,11 +121,22 @@ function TaskForm({setTasks}){
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
                         required
+                        disabled={disabled}
                     />
                 </div>
-
-
-                <button className='submit-btn' type="submit">Add Task</button>  
+                <button
+                    className='submit-btn'
+                    type="submit"
+                    disabled={isSaving || disabled}
+                >
+                    {
+                        disabled
+                        ? 'Login to Add Task'
+                        : isSaving
+                        ? 'Saving...'
+                        : 'Add Task'
+                    }
+                </button>
             </form>
 
         </>

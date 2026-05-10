@@ -23,3 +23,5 @@ CREATE TABLE tasks (
   user_id INT,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+

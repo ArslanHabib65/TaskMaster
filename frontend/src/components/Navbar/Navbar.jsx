@@ -1,12 +1,22 @@
 import './Navbar.css';
+import { jwtDecode } from "jwt-decode";
 
-function Navbar({isLoggedIn, setIsLoggedIn}){
+function Navbar({isLoggedIn, setIsLoggedIn, onSignupClick, onLoginClick}){
 
-    function handleLogin(){
-        setIsLoggedIn(true); // fake login
+    const token = localStorage.getItem("token");
+
+    let username = "";
+
+    if (token){
+    const decoded = jwtDecode(token);
+
+        if (decoded.email){
+            username = decoded.email.split("@")[0];
+        }
     }
 
     function handleLogout(){
+        localStorage.removeItem('token');
         setIsLoggedIn(false);
     }
 
@@ -18,18 +28,31 @@ function Navbar({isLoggedIn, setIsLoggedIn}){
                 <div className="nav-right">
                     {isLoggedIn ? (
                     <>
-                        <span className="welcome">Welcome, User</span>
-                        <button className="logout-btn" onClick={handleLogout}>
-                        Logout
+                        <span className="welcome">
+                            Welcome, {username}
+                        </span>
+
+                        <button
+                            className="logout-btn"
+                            onClick={handleLogout}
+                        >
+                            Logout
                         </button>
                     </>
                     ) : (
                     <>
-                        <button className="login-btn" onClick={handleLogin}>
-                        Login
+                        <button
+                            className="login-btn"
+                            onClick={onLoginClick}
+                        >
+                            Login
                         </button>
-                        <button className="signup-btn">
-                        Sign Up
+
+                        <button
+                            className="signup-btn"
+                            onClick={onSignupClick}
+                        >
+                            Sign Up
                         </button>
                     </>
                     )}

@@ -1,123 +1,33 @@
-// Importing all required libraries from node_modules
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2');
 require('dotenv').config();
 
-// creating the server with express
+// import routes
+const taskRoutes = require('./routes/tasks.js');
+const authRoutes = require('./routes/auth');
+
+// iniialize DB connectin (jsut by importing - the connect() run immdeialty)
+require('./config/db.js');
+
+
 const app = express();
 
-//middleware
-app.use(cors()); // Allows frontend (different port) to make requests to this backend.
-app.use(express.json()); // Lets the server read/parse JSON data coming in from requests (like from Postman or the frontend).
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-// get method to run the backend on localhost.
-app.get('/', (req, res) => {
+// checking backend running
+app.get('/', (req, res) =>{
     res.send('TaskMaster is running!');
 });
 
-// Databse Connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST, 
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD, 
-    database: process.env.DB_NAME
-});
 
-db.connect((err) => {
-    if (err) {
-        console.log('Database connected failed:', err);
-        return;
-    }
-    console.log('MySQL Database Connected');
-});
+// Mount routes 
+app.use('/tasks', taskRoutes);
+app.use('/auth', authRoutes);
 
-
-// post new row in database . 
-app.post('/tasks', (req, res) => {
-    const { title, description, priority, dueDate } = req.body;
-    // validation
-    if (!title) {
-        return res.status(404).json({ message: "Title is required" });
-    }
-    const sql = 'INSERT INTO tasks (title, description, priority, done, dueDate) VALUES (?, ?, ?, ?, ?)';
-    const values = [title, description, priority, false, dueDate];
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ message: 'Task Added Successfully!', id: result.insertId });
-    });
-});
-
-// GET all tasks from the database
-app.get('/tasks', (req, res) => {
-    db.query('SELECT * FROM tasks', (err, result) => {
-        if (err) return res.status(500).json({error: err.message});
-        res.json(result);
-    });
-});
-
-// get one task from database
-app.get('/tasks/:id', (req, res) => {
-    const {id} = req.params;
-    const sql = 'SELECT * FROM tasks WHERE id = ?';
-    const values = [id];
-
-    db.query(sql, values, (err, result) => {
-        if (err){
-            return res.status(500).json({error: err.message});
-        }
-        if (result.length === 0) {
-            return res.status(404).json({message: 'Task not found'});
-        }
-
-        res.json(result[0]);
-    })
-});
-
-// put (update) task by id
-app.put('/tasks/:id', (req, res) => {
-    const {id} = req.params;
-    const { title, description, priority, done, dueDate} = req.body;
-    const sql = 'UPDATE tasks SET title = ?, description = ?, priority = ?, done = ?, dueDate =? WHERE id = ?';
-    const values = [title, description, priority, done, dueDate, id];
-
-    db.query(sql, values, (err, result) => {
-        if (err) {
-            return res.status(500).json({error: err.message});
-        }
-        // check that any row data being change 
-        if (result.affectedRows === 0){
-            return res.status(404).json({message: 'Task not found' })
-        }
-        res.json({message: 'Task Updated successfully!'});
-    });
-});
-
-
-// Delete an Task by id
-app.delete('/tasks/:id', (req, res) => {
-    const {id } = req.params;
-
-    const sql = 'DELETE FROM tasks WHERE id = ?';
-    const value = [id];
-
-    db.query(sql, value, (err, result) => {
-        if (err){
-            return res.status(500).json({error: err.message});
-        } 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({message: 'TASK NOT FOUND'});
-        }
-        res.json({message: 'Task Successfully deleted'});
-    });
-});
-
-
-
-// running localhost server. 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// Start server
+const PORT = Number(process.env.PORT) || 5000;
+app.listen(PORT, () => {                         
     console.log(`Server is running on port ${PORT}`);
 });
