@@ -22,55 +22,82 @@ function TaskForm({ setTasks, disabled = false }) {
     }
 
     async function handleSubmit(e) {
-    e.preventDefault();
 
-    // Stop guest users
-    if (disabled) {
-        alert("Please login to use TaskMaster");
-        return;
-    }
+        e.preventDefault();
 
-    setIsSaving(true);
-    const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:5000/tasks', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json', 
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            title,
-            description,
-            priority,
-            done: false,
-            dueDate: dueDate || null
-        })
-    });
+        if (disabled) {
+            alert("Please login to use TaskMaster");
+            return;
+        }
 
-    const data = await response.json();
+        setIsSaving(true);
 
-    setTasks(prev =>
-        sortTasks([
-            ...prev,
-            {
-                id: data.id,
-                title,
-                description,
-                priority,
-                dueDate
+        try {
+
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(
+                'http://localhost:5000/tasks',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        priority,
+                        done: false,
+                        dueDate: dueDate || null
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            // STOP if backend failed
+            if (!response.ok) {
+
+                setMessage(data.message || 'Failed to add task');
+                setIsSaving(false);
+                return;
             }
-        ])
-    );
 
-    console.log('Backend said:', data);
+            // ONLY add after successful backend insert
+            setTasks(prev =>
+                sortTasks([
+                    ...prev,
+                    {
+                        id: data.id,
+                        title,
+                        description,
+                        priority,
+                        dueDate
+                    }
+                ])
+            );
 
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setPriority('medium');
-    setDueDate('');
-    setIsSaving(false);
-}
+            console.log('Backend said:', data);
+
+            setTitle('');
+            setDescription('');
+            setPriority('medium');
+            setDueDate('');
+            setMessage(null);
+
+        } catch (error) {
+
+            console.log(error);
+            setMessage('Server Error');
+
+        } finally {
+
+            setIsSaving(false);
+        }
+    }
     return (
         <>
         {/* type attribute from button going to trig the onSubmit property */}

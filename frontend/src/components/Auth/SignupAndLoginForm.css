@@ -122,14 +122,28 @@
 
 .message{
     text-align: center;
-
     color: #ffb3b3;
-
     font-size: 0.95rem;
-
     min-height: 20px;
 }
+.password-container {
+    position: relative;
+    width: 100%;
+}
 
+.password-container input {
+    width: 100%;
+}
+
+.show-password-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    user-select: none;
+}
 
 
 /* LoginForm  */
