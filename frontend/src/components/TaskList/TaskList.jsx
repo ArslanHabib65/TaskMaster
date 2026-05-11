@@ -61,17 +61,14 @@ function TaskList({ tasks, setTasks }) {
     // today tasks
     const todayTasks = tasks.filter(task =>
         task.dueDate &&
-        task.dueDate.split('T')[0] === today &&
-        !task.done
+        task.dueDate.split('T')[0] === today
     );
-
 
 
     // overdue tasks
     const overdueTasks = tasks.filter(task =>
         task.dueDate &&
-        task.dueDate.split('T')[0] < today &&
-        !task.done
+        task.dueDate.split('T')[0] < today
     );
 
 

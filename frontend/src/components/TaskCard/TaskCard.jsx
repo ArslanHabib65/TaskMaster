@@ -112,10 +112,10 @@ function TaskCard({ task, setTasks }) {
       </p>
 
       <button
-        className='btn-complete'
-        onClick={handleToggle}
+          className='btn-complete'
+          onClick={handleToggle}
       >
-        {task.done ? "Undo" : "Complete"}
+          {task.done ? "Completed ✓" : "Complete"}
       </button>
 
       <button
